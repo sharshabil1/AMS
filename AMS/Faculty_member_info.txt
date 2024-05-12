@@ -1,0 +1,4 @@
+ID: 0001|Password: 1234|Name: Mohmmed Ali|Sections: [232, 243, 101, 221, 333]
+ID: 0002|Password: 2314|Name: Ali Ahmed|Sections: [232, 243, 101, 221, 333]
+ID: 0003|Password: 4134|Name: Redah Osama|Sections: [232, 243, 101, 221, 333]
+ID: 0004|Password: 4441|Name: Kahlid Othman|Sections: [232, 243, 101, 221, 333]

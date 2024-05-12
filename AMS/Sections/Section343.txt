@@ -1,0 +1,4 @@
+ID: 0001|Name: Mohmmed|Lectures: [A,P,P,P,A,A,P,A,P,P,P,P,A,P,P,P,NR,NR,NR,NR]
+ID: 0002|Name: Ahmed|Lectures: [A,P,P,P,A,P,P,A,P,P,P,P,P,P,P,P,NR,NR,NR,NR]
+ID: 0003|Name: Osama|Lectures: [A,P,P,P,A,P,P,A,P,P,P,A,P,P,A,P,NR,NR,NR,NR]
+ID: 0004|Name: Kahlid|Lectures: [A,P,P,P,A,P,P,A,P,A,P,P,P,P,P,P,NR,NR,NR,NR]
