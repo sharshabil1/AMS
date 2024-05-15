@@ -50,7 +50,7 @@ class Student:
             else:
                 print(f"Section {section}: No absences recorded.")
 
-        return absent_lectures_by_section                                       
+        return absent_lectures_by_section        
 
 
     # this function replaced with read_attendance
@@ -61,37 +61,70 @@ class Student:
 
 
     def upload_excuse(self):
-        Student.read_attendance(self)
+        attendance_data = self.read_attendance()
+        section_index = 0
+        lecture_index = 0
 
-        root = tk.Tk()
-        root.deiconify()
+        print("Available Sections:")
+        for section in attendance_data:
+            section_index += 1
+            print(f"{section_index}- Section {section}")
 
-        file_path = filedialog.askopenfilename(
-            parent=root,
-            title="Select Excuse File",
-            filetypes=[
-                ("Image Files", "*.jpg; *.jpeg; *.png; *.gif"),
-                ("PDF Files", "*.pdf"),
-                ("Text Files", "*.txt")
-            ]
-        )
+        section_choice = input("Choose section index: ")
 
-        if file_path:
-            print("Selected File:", file_path)
-            
+        try:
+            section_choice = int(section_choice)
+            if 1 <= section_choice <= len(attendance_data):
+                selected_section = list(attendance_data.keys())[section_choice - 1]
+                absent_lectures = attendance_data[selected_section]
 
-            # just a test file 
-            output_file_path = 'up.txt'
-            # this will be modified when the record_attendance is completed
-            we = f"Sender ID:{self.st_id}|Section:{self.sections}|Lecture Index:0|File:+{file_path}\n"
-            with open(output_file_path, 'w') as output_file:
-                output_file.write(we)
-            
-            print("The file was sent successfully")
-        else:
-            print("No file selected.")
+                if absent_lectures:
+                    print(f"Section {selected_section}: Absent in the following lectures:")
+                    for lecture_number in absent_lectures:
+                        lecture_index += 1
+                        print(f"Lecture: {lecture_number}")
 
-        root.destroy()
+
+                    lecture_choice = input("Choose lecture index: ")
+
+                    root = tk.Tk()
+                    root.deiconify()
+
+                    file_path = filedialog.askopenfilename(
+                        title="Select Excuse File",
+                        filetypes=[
+                            ("Image Files", "*.jpg; *.jpeg; *.png; *.gif"),
+                            ("PDF Files", "*.pdf"),
+                            ("Text Files", "*.txt")
+                        ]
+                    )
+
+                    if file_path:
+                        print("Selected File:", file_path)
+
+                        output_file_path = 'Excuses_info.txt'
+                        we = f"Sender ID: {self.st_id} | Section: {selected_section} | Lecture Index: {lecture_choice} | File: {file_path}"
+
+                        # Write the content to the output file in append mode
+                        with open(output_file_path, 'a') as output_file:
+                            output_file.write(we + '\n')  # Append the excuse followed by a newline
+
+                        print("The file was sent successfully")
+                    else:
+                        print("No file selected.")
+
+                    root.destroy()  # Destroy the tkinter window after file selection
+
+                else:
+                    print(f"Section {selected_section}: No absences recorded.")
+            else:
+                print("Invalid section index. Please choose a valid section index.")
+
+        except ValueError:
+            print("Invalid input. Please enter a valid section index.")
+
+        except IndexError:
+            print("Invalid section index. Please choose a valid section index.")
 
 
 class FacultyMember:
@@ -230,12 +263,12 @@ def studentMenu(user):
         if studentChose == '1':
             os.system('cls' if os.name == 'nt' else 'clear')
             absent_lectures = user.read_attendance()
-            if absent_lectures:
-                print("Absent in the following lectures:")
-                for lecture_number in absent_lectures:
-                    print(f"Lecture {lecture_number}")
-            else:
-                print("No absences recorded.")
+            # if absent_lectures:
+            #     print("Absent in the following lectures:")
+            #     for lecture_number in absent_lectures:
+            #         print(f"Lecture {lecture_number}")
+            # else:
+            #     print("No absences recorded.")
 
             cont = input("press any key to continue: ")
             os.system('cls' if os.name == 'nt' else 'clear')
