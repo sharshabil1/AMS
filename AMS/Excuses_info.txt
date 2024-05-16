@@ -1,1 +1,4 @@
-
+Sender ID: 0001 | Section: 243 | Lecture Index: 8 |  File: C:/Users/BRO/Pictures/Screenshots/Screenshot (8).png | accepted
+Sender ID: 0001 | Section: 343 | Lecture Index: 13 |  File: C:/Users/BRO/Pictures/Screenshots/Screenshot (12).png | rejected
+Sender ID: 0003 | Section: 343 | Lecture Index: 5 |  File: C:/Users/BRO/Pictures/Screenshots/Screenshot (5).png | not reviewed
+Sender ID: 0003 | Section: 243 | Lecture Index: 1 |  File: C:/Users/BRO/Pictures/Screenshots/Screenshot (1).png | not reviewed
