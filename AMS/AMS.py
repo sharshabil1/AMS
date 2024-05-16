@@ -103,7 +103,7 @@ class Student:
                         print("Selected File:", file_path)
 
                         output_file_path = 'Excuses_info.txt'
-                        we = f"Sender ID: {self.st_id} | Section: {selected_section} | Lecture Index: {lecture_choice} | File: {file_path}"
+                        we = f"Sender ID: {self.st_id} | Section: {selected_section} | Lecture Index: {lecture_choice} |  File: {file_path} | not reviewed"
 
                         # Write the content to the output file in append mode
                         with open(output_file_path, 'a') as output_file:
@@ -138,6 +138,49 @@ class FacultyMember:
 
     def list_sections(self):
         pass
+
+
+
+def review_excuses(file_path):
+    try:
+        # Read the file
+        with open(file_path, 'r') as f:
+            lines = f.readlines()
+
+        # Extract not reviewed excuses
+        not_reviewed_excuses = []
+        for line in lines:
+            if "not reviewed" in line:
+                not_reviewed_excuses.append(line.strip())
+
+        # Display not reviewed excuses
+        print("Not reviewed excuses:")
+        for i, excuse in enumerate(not_reviewed_excuses):
+            print(f"{i + 1}. {excuse}")
+
+        # Prompt user for choice
+        choice = int(input("Enter the index of the excuse you want to review: ")) - 1
+        selected_excuse = not_reviewed_excuses[choice]
+
+        # Ask for acceptance or rejection
+        decision = input(f"Is the excuse '{selected_excuse}' accepted or rejected? ").lower()
+
+        # Update the file
+        with open(file_path, 'w') as f:
+            for line in lines:
+                if selected_excuse in line:
+                    if decision == "accepted":
+                        f.write(line.replace("not reviewed", "accepted"))
+                    elif decision == "rejected":
+                        f.write(line.replace("not reviewed", "rejected"))
+                else:
+                    f.write(line)
+
+        print(f"Excuse '{selected_excuse}' has been {decision}.")
+    except FileNotFoundError:
+        print(f"File '{file_path}' not found.")
+
+
 
 
 def login(user_type = 3):
@@ -295,9 +338,8 @@ def adminMenu():
 
         if adminChose == '1':
             os.system('cls' if os.name == 'nt' else 'clear')
-            print("1- Mohammed, File//:")
-            print("2- Ahmed, File//:")
-            print("3- Ali, File//:")
+            filename = "Excuses_info.txt"
+            review_excuses(filename)
             cont = input("press any key to continue: ")
             os.system('cls' if os.name == 'nt' else 'clear')
         elif adminChose == '2':
