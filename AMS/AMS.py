@@ -134,10 +134,70 @@ class FacultyMember:
         self.sections = sections
 
     def record_attendance(self):
-        pass
+        print("Available Sections:")
+        for index, section in enumerate(self.sections, start=1):
+            print(f"{index}. Section {section}")
+    
+        try:
+            section_index = int(input("Select section index to take attendance for: ")) - 1
+            if section_index < 0 or section_index >= len(self.sections):
+                raise IndexError("Selected section index is out of range.")
+    
+            selected_section = self.sections[section_index]
+            section_filename = os.path.join("Sections", f"Section{selected_section}.txt")
+    
+            if not os.path.exists(section_filename):
+                raise FileNotFoundError(f"Section file '{section_filename}' not found.")
+    
+            lecture_index = int(input("Select lecture index to take attendance for (from 1-20): ")) - 1
+            if lecture_index < 0 or lecture_index >= 20:
+                raise IndexError("Lecture index is out of range. Please enter a value from 1 to 20.")
+    
+            with open(section_filename, 'r') as section_file:
+                lines = section_file.readlines()
+    
+            updated_lines = []
+    
+            for line in lines:
+                st_id = line[4:line.find("|Name")]
+                st_name = line[line.find("Name: ") + 6:line.find("|Lectures")]
+                lectures_start = line.find("Lectures: [") + len("Lectures: [")
+                lectures_end = line.find("]", lectures_start)
+                lectures = line[lectures_start:lectures_end].split(",")
+    
+                status = input(f"Student name: {st_name} (A for absent, P for present): ").upper()
+                if status not in ['A', 'P']:
+                    print("Invalid input, marking as absent.")
+                    status = 'A'
+    
+                # Update the specific lecture index
+                lectures[lecture_index] = status
+                updated_lectures = ",".join(lectures)
+    
+                # Reconstruct the line with updated lectures
+                updated_line = f"ID: {st_id}|Name: {st_name}|Lectures: [{updated_lectures}]\n"
+                updated_lines.append(updated_line)
+    
+            # Write the updated lines back to the file
+            with open(section_filename, 'w') as section_file:
+                section_file.writelines(updated_lines)
+    
+            print("Attendance recorded successfully.")
+        except ValueError as e:
+            print("Invalid input. Please enter valid numerical indices.")
+        except IndexError as e:
+            print(e)
+        except FileNotFoundError as e:
+            print(e)
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+
+
 
     def list_sections(self):
-        pass
+        print("your sections: ")
+        print(self.sections)
+
 
 
 
@@ -148,10 +208,11 @@ def review_excuses(file_path):
             lines = f.readlines()
 
         # Extract not reviewed excuses
-        not_reviewed_excuses = []
-        for line in lines:
-            if "not reviewed" in line:
-                not_reviewed_excuses.append(line.strip())
+        not_reviewed_excuses = [line.strip() for line in lines if "not reviewed" in line]
+
+        if not not_reviewed_excuses:
+            print("No excuses to review.")
+            return
 
         # Display not reviewed excuses
         print("Not reviewed excuses:")
@@ -160,28 +221,77 @@ def review_excuses(file_path):
 
         # Prompt user for choice
         choice = int(input("Enter the index of the excuse you want to review: ")) - 1
+
+        if choice < 0 or choice >= len(not_reviewed_excuses):
+            raise IndexError("Selected excuse index is out of range.")
+
         selected_excuse = not_reviewed_excuses[choice]
 
         # Ask for acceptance or rejection
         decision = input(f"Is the excuse '{selected_excuse}' accepted or rejected? ").lower()
+        if decision not in ['accepted', 'rejected']:
+            raise ValueError("Invalid decision. Please enter 'accepted' or 'rejected'.")
 
-        # Update the file
+        # Parse the excuse details
+        excuse_parts = selected_excuse.split('|')
+        sender_id = excuse_parts[0].split(': ')[1].strip()
+        section = excuse_parts[1].split(': ')[1].strip()
+        lecture_index = int(excuse_parts[2].split(': ')[1].strip()) - 1
+
+        # Update the section file if accepted
+        if decision == "accepted":
+            section_filename = os.path.join("Sections", f"Section{section}.txt")
+
+            if not os.path.exists(section_filename):
+                raise FileNotFoundError(f"Section file '{section_filename}' not found.")
+
+            with open(section_filename, 'r') as section_file:
+                section_lines = section_file.readlines()
+
+            updated_section_lines = []
+            student_found = False
+
+            for line in section_lines:
+                if f"ID: {sender_id}|" in line:
+                    student_found = True
+                    # Extract lectures and update the specified lecture index
+                    lectures_start = line.find("Lectures: [") + len("Lectures: [")
+                    lectures_end = line.find("]", lectures_start)
+                    lectures = line[lectures_start:lectures_end].split(",")
+
+                    if lectures[lecture_index] == 'A':
+                        lectures[lecture_index] = 'P'  # Mark the lecture as present
+
+                    updated_lectures = ",".join(lectures)
+                    updated_line = f"ID: {sender_id}|Name: {line.split('|')[1].split(': ')[1]}|Lectures: [{updated_lectures}]\n"
+                    updated_section_lines.append(updated_line)
+                else:
+                    updated_section_lines.append(line)
+
+            if not student_found:
+                raise ValueError(f"Student ID '{sender_id}' not found in section '{section}'.")
+
+            # Write the updated lines back to the section file
+            with open(section_filename, 'w') as section_file:
+                section_file.writelines(updated_section_lines)
+
+        # Update the excuses file
         with open(file_path, 'w') as f:
             for line in lines:
                 if selected_excuse in line:
-                    if decision == "accepted":
-                        f.write(line.replace("not reviewed", "accepted"))
-                    elif decision == "rejected":
-                        f.write(line.replace("not reviewed", "rejected"))
+                    f.write(line.replace("not reviewed", decision))
                 else:
                     f.write(line)
 
         print(f"Excuse '{selected_excuse}' has been {decision}.")
-    except FileNotFoundError:
-        print(f"File '{file_path}' not found.")
-
-
-
+    except FileNotFoundError as e:
+        print(e)
+    except IndexError as e:
+        print(e)
+    except ValueError as e:
+        print(e)
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
 
 def login(user_type = 3):
     os.system('cls')
@@ -306,13 +416,6 @@ def studentMenu(user):
         if studentChose == '1':
             os.system('cls' if os.name == 'nt' else 'clear')
             absent_lectures = user.read_attendance()
-            # if absent_lectures:
-            #     print("Absent in the following lectures:")
-            #     for lecture_number in absent_lectures:
-            #         print(f"Lecture {lecture_number}")
-            # else:
-            #     print("No absences recorded.")
-
             cont = input("press any key to continue: ")
             os.system('cls' if os.name == 'nt' else 'clear')
         elif studentChose == '2':
@@ -362,17 +465,12 @@ def facultyMenu(user):
 
         if facultyChose == '1':
             os.system('cls' if os.name == 'nt' else 'clear')
-            print("Sections:")
-            print("1- FOS/6")
-            print("1- Electric Circuits/1")
+            sections = user.list_sections()
             cont = input("press any key to continue: ")
             os.system('cls' if os.name == 'nt' else 'clear')
         elif facultyChose == '2':
             os.system('cls' if os.name == 'nt' else 'clear')
-            print("Students List:")
-            print("1- Mohammed")
-            print("2- Ahmed")
-            print("3- Ali")
+            user.record_attendance()
             cont = input("press any key to continue: ")
             os.system('cls' if os.name == 'nt' else 'clear')
         elif facultyChose == '3':
